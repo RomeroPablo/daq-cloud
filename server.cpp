@@ -1,25 +1,6 @@
-/*
-#include <uwebsockets/App.h>
-
-int main() {
-    uWS::App().ws<false>("/*", {
-        .open = [](auto* ws) {
-            std::cout << "Client connected" << std::endl;
-        },
-        .message = [](auto* ws, std::string_view msg, uWS::OpCode) {
-            std::cout << "Received: " << msg << std::endl;
-            ws->send("Echo: " + std::string(msg), uWS::OpCode::TEXT);
-        },
-        .close = [](auto* ws, int code, std::string_view msg) {
-            std::cout << "Client disconnected" << std::endl;
-        }
-    }).listen(9001, [](auto* token) {
-        if (token) std::cout << "Listening on port 9001" << std::endl;
-    }).run();
-}
-*/
 #include <asm-generic/socket.h>
 #include <iostream>
+#include <ostream>
 #include <unistd.h>
 #include <cstring>
 
@@ -52,31 +33,25 @@ int main(){
         return 1;
     }
 
-
-
-}
-
-/*
     listen(server_fd, 3);
     std::cout << "Server listening on port " << PORT << std::endl;
 
     client_socket = accept(server_fd, (sockaddr*)&address, &addrlen);
-    if (client_socket < 0) {
+    if(client_socket < 0){
         perror("accept failed");
         return 1;
     }
 
     std::cout << "Client connected." << std::endl;
 
-    while (true) {
+    while(true) {
         ssize_t bytes_read = read(client_socket, buffer, sizeof(buffer) - 1);
         if (bytes_read <= 0) break;
         buffer[bytes_read] = '\0';
-        std::cout << "Received: " << buffer << std::endl;
+        std::cout << buffer << std::endl;
     }
 
     close(client_socket);
     close(server_fd);
     return 0;
 }
-*/
