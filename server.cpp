@@ -9,7 +9,7 @@
 #include <sys/socket.h>
 
 int main(){
-    const int PORT = 5000;
+    const int PORT = 5600;
     int server_fd, client_socket;
     sockaddr_in address{};
     socklen_t addrlen = sizeof(address);

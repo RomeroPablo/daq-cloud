@@ -9,8 +9,8 @@
 #include <cstring>
 
 int main() {
-    const char* SERVER_IP = "3.129.249.33";
-    const int PORT = 5000;
+    const char* SERVER_IP = "3.141.38.115";
+    const int PORT = 5600;
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
@@ -37,10 +37,13 @@ int main() {
     int count = 0;
     int buf_size = 0;
     uint8_t buffer[64];
-    buf_size = snprintf((char *)buffer, sizeof(buffer), "count == %i\n", count);
-    sleep(3);
-    send(sock, buffer, buf_size, 0);
-    std::cout << "Message sent.\n";
+    while(1){
+        buf_size = snprintf((char *)buffer, sizeof(buffer), "count == %i\n", count);
+        sleep(3);
+        send(sock, buffer, buf_size, 0);
+        std::cout << "Message sent.\n";
+        count++;
+    }
 
     close(sock);
     return 0;
