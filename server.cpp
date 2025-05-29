@@ -1,5 +1,7 @@
 #include <asm-generic/socket.h>
+#include <cstdio>
 #include <iostream>
+#include <mutex>
 #include <ostream>
 #include <unistd.h>
 #include <cstring>
@@ -7,6 +9,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
+#include <vector>
 
 int main(){
     const int PORT = 5600;
@@ -54,4 +57,43 @@ int main(){
     close(client_socket);
     close(server_fd);
     return 0;
+}
+
+#define CLIENT_PORT 5700
+#define BACKLOG 16
+std::mutex clients_mtx;
+std::vector<int> clients;
+
+void client_acceptor() {
+    int listen_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (listen_fd < 0) { perror("client socket"); return; }
+    
+    sockaddr_in addr{};
+    addr.sin_family         = AF_INET;
+    addr.sin_addr.s_addr    = INADDR_ANY;
+    addr.sin_port           = htons(CLIENT_PORT);
+
+    int opt = 1;
+    setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+    if(bind(listen_fd, (sockaddr*)&addr, sizeof(addr))){
+        perror("client bind"); return;
+    }
+    listen(listen_fd, BACKLOG);
+    std::cout << "[+] Listening for clients on port " << CLIENT_PORT << "\n";
+
+    while(true){
+        int client_fd = accept(listen_fd, nullptr, nullptr); // can extract addr here
+        if(client_fd < 0){
+            perror("client accept");
+            continue;
+        }
+        {
+            std::lock_guard<std::mutex> lock(clients_mtx);
+            clients.push_back(client_fd);
+        }
+        std::cout << "[+] New client: fd=" << client_fd << " (total: " << clients.size() << ")\n";
+    }
+
+
 }

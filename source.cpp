@@ -1,4 +1,4 @@
-// client.cpp
+// source.cpp
 #include <cstdint>
 #include <cstdio>
 #include <iostream>
@@ -10,7 +10,7 @@
 
 int main() {
     const char* SERVER_IP = "3.141.38.115";
-    const int PORT = 5700;
+    const int PORT = 5600;
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
@@ -38,9 +38,10 @@ int main() {
     int buf_size = 0;
     uint8_t buffer[64];
     while(1){
-        buf_size = sizeof(buffer);
-        recv(sock, buffer, buf_size, 0);
-        std::cout << buffer;
+        buf_size = snprintf((char *)buffer, sizeof(buffer), "count == %i", count);
+        sleep(1);
+        send(sock, buffer, buf_size, 0);
+        std::cout << "Message sent.";
         count++;
     }
 
