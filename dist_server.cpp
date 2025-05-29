@@ -58,16 +58,20 @@ int main(){
 
     // configure src/generator port
     int src_listen = socket(AF_INET, SOCK_STREAM, 0);
+    int opt = 1;
     if(src_listen < 0) { perror("source socket"); return 1; }
+    setsockopt(src_listen, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
     sockaddr_in src_addr{};
     src_addr.sin_family         = AF_INET;
     src_addr.sin_addr.s_addr    = INADDR_ANY;
     src_addr.sin_port           = htons(SOURCE_PORT);
-    int opt = 1;
-    setsockopt(src_listen, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
     if(bind(src_listen, (sockaddr*)&src_addr, sizeof(src_addr)) < 0){
         perror("source bind"); return 1;
     }
+    listen(src_listen, 1);
+    std::cout << "[+] Waiting for source on port " << SOURCE_PORT << "...\n";
+
     int src_fd = 0;
     while(src_fd == 0)
         src_fd = accept(src_listen, (sockaddr*)nullptr, (socklen_t*)nullptr);
