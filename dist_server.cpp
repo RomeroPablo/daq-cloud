@@ -68,7 +68,9 @@ int main(){
     if(bind(src_listen, (sockaddr*)&src_addr, sizeof(src_addr)) < 0){
         perror("source bind"); return 1;
     }
-    int src_fd = accept(src_listen, nullptr, nullptr);
+    int src_fd = 0;
+    while(src_fd == 0)
+        src_fd = accept(src_listen, nullptr, nullptr);
     if(src_fd < 0) { perror("source accept"); return 1; }
     std::cout << "[+] Source connected, fd=" << src_fd << "\n";
 
