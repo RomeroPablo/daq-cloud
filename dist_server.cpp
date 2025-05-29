@@ -70,7 +70,7 @@ int main(){
     }
     int src_fd = 0;
     while(src_fd == 0)
-        src_fd = accept(src_listen, nullptr, nullptr);
+        src_fd = accept(src_listen, (sockaddr*)nullptr, (socklen_t*)nullptr);
     if(src_fd < 0) { perror("source accept"); return 1; }
     std::cout << "[+] Source connected, fd=" << src_fd << "\n";
 
