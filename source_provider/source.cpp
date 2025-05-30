@@ -7,9 +7,9 @@
 #include <thread>
 #include <unistd.h>
 #include <cstring>
+#include "ip_key.h"
 
 int main() {
-    const char* SERVER_IP = "3.141.38.115";
     const int PORT = 5600;
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
