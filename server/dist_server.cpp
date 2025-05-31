@@ -31,9 +31,8 @@ void client_addr(){
         perror("client bind");
     }
     listen(client_socket, CLIENT_BACKLOG);
-    std::cout << "[+] listening for clients on port " << CLIENT_PORT << "\n";
+    std::cout << "[+] Listening for clients on port " << CLIENT_PORT << "\n";
 
-    // check for new connections, add them to a buffer
     int clients_size = 0;
     while(true){
         int client_fd = accept(client_socket, nullptr, nullptr);
@@ -46,12 +45,13 @@ void client_addr(){
             clients.push_back(client_fd);
             clients_size = clients.size();
         } 
-        std::cout << "[+] New client fd= " << client_fd << " (total: " << clients_size << ")\n";
+        std::cout << "[+] New client fd= " << client_fd << " (*total: " << clients_size << ")\n";
     }
 }
 
 
 #define SOURCE_PORT 5600
+#define READ_BUFFER_SIZE 1024
 void source_init(){
     int source_socket = socket(AF_INET, SOCK_STREAM, 0);
     int opt_val = 1;
@@ -60,10 +60,10 @@ void source_init(){
     source_addr.sin_family = AF_INET;
     source_addr.sin_addr.s_addr = INADDR_ANY;
     source_addr.sin_port = htons(SOURCE_PORT);
-
     if(bind(source_socket, (sockaddr*)&source_addr, sizeof(source_addr)) < 0){
         perror("source bind");
     }
+
     listen(source_socket, 1);
 
     std::cout << "[+] Waiting for source on port " << SOURCE_PORT << "...\n";
@@ -73,11 +73,40 @@ void source_init(){
         source_fd = accept(source_socket, nullptr, nullptr);
     }
     std::cout << "[+] Source connected, fd= " << source_fd <<"\n";
+    
+    // at this point, read from the source file, and write to some shared buffer?
+    // or just distribute to all threads ? 
 
+    char read_buffer[READ_BUFFER_SIZE];
+    while(true){
+
+        ssize_t read_size = read(source_fd, read_buffer, sizeof(read_buffer));
+        if(read_size < 0){
+            std::cout << "[+] Waiting for source on port " << SOURCE_PORT << "...\n";
+            int source_fd = 0;
+            while(source_fd <= 0) {
+                sleep(1);
+                source_fd = accept(source_socket, nullptr, nullptr);
+            }
+            std::cout << "[+] Source connected, fd= " << source_fd <<"\n";
+        }
+
+        std::lock_guard lock(client_lock);
+        for (auto it = clients.begin(); it != clients.end(); ) {
+            if (send(*it, read_buffer, read_size, 0) <= 0) {
+                close(*it);
+                it = clients.erase(it);
+                std::cout << "[!] Removed client (now " << clients.size() << " remain)\n";
+            } else {
+                ++it;
+            }
+        }
+    }
+
+    close(source_fd);
 }
 
 int main(void){
     std::thread{client_addr}.detach();
-
     source_init();
 }
