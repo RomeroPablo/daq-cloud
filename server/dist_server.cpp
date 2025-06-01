@@ -81,6 +81,7 @@ void source_init(){
     while(true){
 
         ssize_t read_size = read(source_fd, read_buffer, sizeof(read_buffer));
+        /*
         if(read_size < 0){
             std::cout << "[+] Waiting for source on port " << SOURCE_PORT << "...\n";
             int source_fd = 0;
@@ -90,7 +91,8 @@ void source_init(){
             }
             std::cout << "[+] Source connected, fd= " << source_fd <<"\n";
         }
-
+        */
+        if(read_size > 0){
         std::lock_guard lock(client_lock);
         for (auto it = clients.begin(); it != clients.end(); ) {
             if (send(*it, read_buffer, read_size, 0) <= 0) {
@@ -101,8 +103,9 @@ void source_init(){
                 ++it;
             }
         }
-    }
 
+        }
+    }
     close(source_fd);
 }
 
