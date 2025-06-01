@@ -79,19 +79,7 @@ void source_init(){
 
     char read_buffer[READ_BUFFER_SIZE];
     while(true){
-
         ssize_t read_size = read(source_fd, read_buffer, sizeof(read_buffer));
-        /*
-        if(read_size < 0){
-            std::cout << "[+] Waiting for source on port " << SOURCE_PORT << "...\n";
-            int source_fd = 0;
-            while(source_fd <= 0) {
-                sleep(1);
-                source_fd = accept(source_socket, nullptr, nullptr);
-            }
-            std::cout << "[+] Source connected, fd= " << source_fd <<"\n";
-        }
-        */
         if(read_size > 0){
         std::lock_guard lock(client_lock);
         for (auto it = clients.begin(); it != clients.end(); ) {
@@ -103,7 +91,6 @@ void source_init(){
                 ++it;
             }
         }
-
         }
     }
     close(source_fd);
