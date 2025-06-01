@@ -38,13 +38,15 @@ int main() {
     int buf_size = 0;
     uint8_t buffer[64];
     while(1){
-        buf_size = snprintf((char *)buffer, sizeof(buffer), "count == %i", count);
-        sleep(1);
-        send(sock, buffer, buf_size, 0);
-        std::cout << "Message sent.";
+        buf_size = snprintf((char *)buffer, sizeof(buffer), "count == %d", count);
+        ssize_t amt_sent = send(sock, buffer, buf_size, 0);
+        if (amt_sent < 0){
+            std::perror("send");
+        }
+        std::cout << "Message sent: " << buffer << std::endl;
         count++;
+        sleep(1);
     }
-
     close(sock);
     return 0;
 }
